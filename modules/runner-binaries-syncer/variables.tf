@@ -4,17 +4,6 @@ variable "tags" {
   default     = {}
 }
 
-variable "environment" {
-  description = "A name that identifies the environment, used as prefix and for tagging."
-  type        = string
-  default     = null
-
-  validation {
-    condition     = var.environment == null
-    error_message = "The \"environment\" variable is no longer used. To migrate, set the \"prefix\" variable to the original value of \"environment\" and optionally, add \"Environment\" to the \"tags\" variable map with the same value."
-  }
-}
-
 variable "prefix" {
   description = "The prefix used for naming resources"
   type        = string
@@ -49,10 +38,21 @@ variable "s3_logging_bucket_prefix" {
   type        = string
   default     = null
 
-  # Make sure the bucket name only contains legal characters
+  # Make sure the bucket prefix only contains legal characters
   validation {
-    error_message = "Only lowercase alphanumeric characters and hyphens allowed in the bucket name."
-    condition     = var.s3_logging_bucket_prefix == null || can(regex("^[a-z0-9-]*$", var.s3_logging_bucket_prefix))
+    error_message = "Only alphanumeric characters, hyphens followed by single slashes allowed in the bucket prefix."
+    condition     = var.s3_logging_bucket_prefix == null || can(regex("^(([a-zA-Z0-9-])+(\\/?))*$", var.s3_logging_bucket_prefix))
+  }
+}
+
+variable "state_event_rule_binaries_syncer" {
+  type        = string
+  description = "Option to disable EventBridge Lambda trigger for the binary syncer, useful to stop automatic updates of binary distribution"
+  default     = "ENABLED"
+
+  validation {
+    condition     = contains(["ENABLED", "DISABLED", "ENABLED_WITH_ALL_CLOUDTRAIL_MANAGEMENT_EVENTS"], var.state_event_rule_binaries_syncer)
+    error_message = "`state_event_rule_binaries_syncer` value is not valid, valid values are: `ENABLED`, `DISABLED`, `ENABLED_WITH_ALL_CLOUDTRAIL_MANAGEMENT_EVENTS`."
   }
 }
 
@@ -72,6 +72,12 @@ variable "lambda_timeout" {
   description = "Time out of the lambda in seconds."
   type        = number
   default     = 300
+}
+
+variable "lambda_memory_size" {
+  description = "Memory size of the lambda."
+  type        = number
+  default     = 256
 }
 
 variable "role_permissions_boundary" {
@@ -113,24 +119,13 @@ variable "runner_architecture" {
 variable "logging_retention_in_days" {
   description = "Specifies the number of days you want to retain log events for the lambda log group. Possible values are: 0, 1, 3, 5, 7, 14, 30, 60, 90, 120, 150, 180, 365, 400, 545, 731, 1827, and 3653."
   type        = number
-  default     = 7
+  default     = 180
 }
 
 variable "logging_kms_key_id" {
   description = "Specifies the kms key id to encrypt the logs with"
   type        = string
   default     = null
-}
-
-variable "runner_allow_prerelease_binaries" {
-  description = "(Deprecated, no longer used), allow the runners to update to prerelease binaries."
-  type        = bool
-  default     = null
-
-  validation {
-    condition     = var.runner_allow_prerelease_binaries == null
-    error_message = "The \"runner_allow_prerelease_binaries\" variable is no longer used. GitHub runners are not released as pre-release, only releases should be used."
-  }
 }
 
 variable "lambda_s3_bucket" {
@@ -163,18 +158,10 @@ variable "lambda_security_group_ids" {
   default     = []
 }
 
-variable "log_type" {
-  description = "Logging format for lambda logging. Valid values are 'json', 'pretty', 'hidden'. "
+variable "aws_partition" {
+  description = "(optional) partition for the base arn if not 'aws'"
   type        = string
-  default     = "pretty"
-  validation {
-    condition = anytrue([
-      var.log_type == "json",
-      var.log_type == "pretty",
-      var.log_type == "hidden",
-    ])
-    error_message = "`log_type` value not valid. Valid values are 'json', 'pretty', 'hidden'."
-  }
+  default     = "aws"
 }
 
 variable "log_level" {
@@ -183,22 +170,36 @@ variable "log_level" {
   default     = "info"
   validation {
     condition = anytrue([
-      var.log_level == "silly",
-      var.log_level == "trace",
       var.log_level == "debug",
       var.log_level == "info",
       var.log_level == "warn",
       var.log_level == "error",
-      var.log_level == "fatal",
     ])
-    error_message = "`log_level` value not valid. Valid values are 'silly', 'trace', 'debug', 'info', 'warn', 'error', 'fatal'."
+    error_message = "`log_level` value not valid. Valid values are 'debug', 'info', 'warn', 'error'."
   }
+  validation {
+    condition     = !contains(["silly", "trace", "fatal"], var.log_level)
+    error_message = "PLEASE MIGRATE: The following log levels: 'silly', 'trace' and 'fatal' are not longer supported."
+  }
+
 }
 
 variable "server_side_encryption_configuration" {
-  description = "Map containing server-side encryption configuration."
+  description = "Map containing server-side encryption configuration for runner-binaries S3 bucket."
   type        = any
-  default     = {}
+  default = {
+    rule = {
+      apply_server_side_encryption_by_default = {
+        sse_algorithm = "AES256"
+      }
+    }
+  }
+}
+
+variable "s3_versioning" {
+  description = "Status of S3 versioning for runner-binaries S3 bucket."
+  type        = string
+  default     = "Disabled"
 }
 
 variable "lambda_principals" {
@@ -213,7 +214,7 @@ variable "lambda_principals" {
 variable "lambda_runtime" {
   description = "AWS Lambda runtime."
   type        = string
-  default     = "nodejs18.x"
+  default     = "nodejs22.x"
 }
 
 variable "lambda_architecture" {
@@ -224,4 +225,20 @@ variable "lambda_architecture" {
     condition     = contains(["arm64", "x86_64"], var.lambda_architecture)
     error_message = "`lambda_architecture` value is not valid, valid values are: `arm64` and `x86_64`."
   }
+}
+
+variable "tracing_config" {
+  description = "Configuration for lambda tracing."
+  type = object({
+    mode                  = optional(string, null)
+    capture_http_requests = optional(bool, false)
+    capture_error         = optional(bool, false)
+  })
+  default = {}
+}
+
+variable "lambda_tags" {
+  description = "Map of tags that will be added to all the lambda function resources. Note these are additional tags to the default tags."
+  type        = map(string)
+  default     = {}
 }
