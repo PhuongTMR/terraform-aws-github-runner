@@ -6,7 +6,7 @@ This module will create an AWS IAM role that is required to use permission bound
 
 ## Usages
 
-See below or check out [this example](../../examples/permissions-boundary/README.md)
+See below or check out [this example](https://github-aws-runners.github.io/terraform-aws-github-runner/examples/permissions-boundary/)
 Create a workspace and add the following terraform code.
 
 ```hcl
@@ -35,19 +35,20 @@ output "boundary" {
 
 Next execute the created Terraform code `terraform init && terraform apply` The module will. You can use the created role in your terraform provider with assume role and the boundary as well the namespace needs to be set to the root module.
 
-<!-- BEGINNING OF PRE-COMMIT-TERRAFORM DOCS HOOK -->
+
+<!-- BEGIN_TF_DOCS -->
 ## Requirements
 
 | Name | Version |
 |------|---------|
 | <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) | >= 1.3.0 |
-| <a name="requirement_aws"></a> [aws](#requirement\_aws) | ~> 4.0 |
+| <a name="requirement_aws"></a> [aws](#requirement\_aws) | ~> 5.27 |
 
 ## Providers
 
 | Name | Version |
 |------|---------|
-| <a name="provider_aws"></a> [aws](#provider\_aws) | ~> 4.0 |
+| <a name="provider_aws"></a> [aws](#provider\_aws) | ~> 5.27 |
 
 ## Modules
 
@@ -70,8 +71,7 @@ No modules.
 |------|-------------|------|---------|:--------:|
 | <a name="input_account_id"></a> [account\_id](#input\_account\_id) | The module allows to switch to the created role from the provided account id. | `string` | n/a | yes |
 | <a name="input_aws_partition"></a> [aws\_partition](#input\_aws\_partition) | (optional) partition in the arn namespace if not aws | `string` | `"aws"` | no |
-| <a name="input_environment"></a> [environment](#input\_environment) | A name that identifies the environment, used as prefix and for tagging. | `string` | `null` | no |
-| <a name="input_namespaces"></a> [namespaces](#input\_namespaces) | The role will be only allowed to create roles, policies and instance profiles in the given namespace / path. All policies in the boundaries namespace cannot be modified by this role. | <pre>object({<br>    boundary_namespace         = string<br>    role_namespace             = string<br>    policy_namespace           = string<br>    instance_profile_namespace = string<br>  })</pre> | n/a | yes |
+| <a name="input_namespaces"></a> [namespaces](#input\_namespaces) | The role will be only allowed to create roles, policies and instance profiles in the given namespace / path. All policies in the boundaries namespace cannot be modified by this role. | <pre>object({<br/>    boundary_namespace         = string<br/>    role_namespace             = string<br/>    policy_namespace           = string<br/>    instance_profile_namespace = string<br/>  })</pre> | n/a | yes |
 | <a name="input_prefix"></a> [prefix](#input\_prefix) | The prefix used for naming resources | `string` | `"github-actions"` | no |
 
 ## Outputs
@@ -80,22 +80,4 @@ No modules.
 |------|-------------|
 | <a name="output_boundary"></a> [boundary](#output\_boundary) | n/a |
 | <a name="output_role"></a> [role](#output\_role) | n/a |
-<!-- END OF PRE-COMMIT-TERRAFORM DOCS HOOK -->
-
-## Philips Forest
-
-This module is part of the Philips Forest.
-
-```plain
-                                                     ___                   _
-                                                    / __\__  _ __ ___  ___| |_
-                                                   / _\/ _ \| '__/ _ \/ __| __|
-                                                  / / | (_) | | |  __/\__ \ |_
-                                                  \/   \___/|_|  \___||___/\__|
-
-                                                                 Infrastructure
-```
-
-Talk to the forestkeepers in the `forest`-channel on Slack.
-
-[![Slack](https://philips-software-slackin.now.sh/badge.svg)](https://philips-software-slackin.now.sh)
+<!-- END_TF_DOCS -->

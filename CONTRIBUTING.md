@@ -1,18 +1,15 @@
-# Contributing to Forest Terraform
+# Contributing to this project
 
-We'd love for you to contribute to our source code and to make the Forest even better than it is today! Here are the guidelines we'd like you to follow:
+We'd love for you to contribute to our source code and to make this project even better than it is today! Here are the guidelines we'd like you to follow:
 
 * [Question or Problem?](#question)
 * [Issues and Bugs](#issue)
 * [Feature Requests](#feature)
 * [Submission Guidelines](#submit)
-* [Further Info](#info)
 
 ## <a name="question"></a> Got a Question or Problem?
 
-If you have questions about how to use the Forest, please direct these to the [Slack group / philips-software][slack].
-
-[![Slack](https://philips-software-slackin.now.sh/badge.svg)](https://philips-software-slackin.now.sh)
+If you have questions about how to use aws-github-runners, please direct these to [Discord](https://discord.gg/bxgXW8jJGh)
 
 ## <a name="issue"></a> Found an Issue?
 
@@ -43,7 +40,7 @@ If your issue appears to be a bug, and hasn't been reported, open a new issue. H
 
 * **Overview of the Issue** - if an error is being thrown a non-minified stack trace helps
 * **Motivation for or Use Case** - explain why this is a bug for you
-* **Forest Version(s)** - is it a regression?
+* **Project Version(s)** - is it a regression?
 * **Reproduce the Error** - try to describe how to reproduce the error
 * **Related Issues** - has a similar issue been reported before?
 * **Suggest a Fix** - if you can't fix the bug yourself, perhaps you can point to what might be
@@ -51,9 +48,9 @@ If your issue appears to be a bug, and hasn't been reported, open a new issue. H
 
 **If you get help, help others. Good karma rulez!**
 
-### Submitting a Merge Request
+### Submitting a Pull Request
 
-Before you submit your merge request consider the following guidelines:
+Before you submit your pull request consider the following guidelines:
 
 * Make your changes in a new git branch:
 
@@ -62,9 +59,16 @@ Before you submit your merge request consider the following guidelines:
     ```
 
 * Create your patch, **including appropriate test cases**.
-* Install [Terraform](https://www.terraform.io/). We lock the version with [tvenv](https://github.com/tfutils/tfenv), check `required_version` in `versions.tf` for the current development version of the module.
-* Install [pre-commit hooks](https://pre-commit.com/). The hooks runs some basic checks and update the docs. The commit will run the hooks, you can invoke the hooks manually `pre-commit run --all-files` as well.
-* Commit your changes using a descriptive commit message.
+* Install [Terraform](https://www.terraform.io/). We lock the version with [tfenv](https://github.com/tfutils/tfenv), check `required_version` in `versions.tf` for the current development version of the module.
+* Install [pre-commit hooks](https://pre-commit.com/). The hooks runs some basic checks. The commit will run the hooks, you can invoke the hooks manually `pre-commit run --all-files` as well. The hooks require tflint to be installed and terraform modules to be initialized.
+    * Install [tflint](https://github.com/terraform-linters/tflint). We use tflint to lint the terraform code.
+    * Initialize the terraform modules:
+
+        ```shell
+        terraform init
+        ```
+
+* Commit your changes using a descriptive commit message:
 
     ```shell
     git commit -a
@@ -72,7 +76,19 @@ Before you submit your merge request consider the following guidelines:
 
   Note: the optional commit `-a` command line option will automatically "add" and "rm" edited files.
 
+* Install [node](https://nodejs.org/en/) and [yarn](https://yarnpkg.com/). We use yarn to lint, test and build the lambdas.
 * Build your changes locally to ensure all the tests pass:
+
+        ```shell
+        cd lambdas
+        yarn install
+        yarn format
+        yarn lint
+        yarn test
+        yarn build
+        cd ..
+        ```
+
 * Push your branch to Github:
 
     ```shell
@@ -127,14 +143,6 @@ from the main (upstream) repository:
     git pull --ff upstream main
     ```
 
-## <a name="info"></a> Info
-
-For more info, please reach out to the team on [Slack group / philips-software][slack] in the #forest channel.
-
-Use the badge to sign-up.
-
-[![Slack](https://philips-software-slackin.now.sh/badge.svg)](https://philips-software-slackin.now.sh)
 
 [contribute]: CONTRIBUTING.md
-[github]: https://github.com/philips-labs/terraform-aws-github-runner/issues
-[slack]: https://philips-software.slack.com/home
+[github]: https://github.com/github-aws-runners/terraform-aws-github-runner/issues

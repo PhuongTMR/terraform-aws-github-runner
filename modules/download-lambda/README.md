@@ -24,20 +24,20 @@ module "lambdas" {
 }
 ```
 
-<!-- BEGINNING OF PRE-COMMIT-TERRAFORM DOCS HOOK -->
+<!-- BEGIN_TF_DOCS -->
 ## Requirements
 
 | Name | Version |
 |------|---------|
 | <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) | >= 1.3.0 |
-| <a name="requirement_aws"></a> [aws](#requirement\_aws) | ~> 4.0 |
-| <a name="requirement_null"></a> [null](#requirement\_null) | ~> 3.0 |
+| <a name="requirement_aws"></a> [aws](#requirement\_aws) | ~> 5.27 |
+| <a name="requirement_null"></a> [null](#requirement\_null) | ~> 3 |
 
 ## Providers
 
 | Name | Version |
 |------|---------|
-| <a name="provider_null"></a> [null](#provider\_null) | 3.0.0 |
+| <a name="provider_null"></a> [null](#provider\_null) | ~> 3 |
 
 ## Modules
 
@@ -53,11 +53,11 @@ No modules.
 
 | Name | Description | Type | Default | Required |
 |------|-------------|------|---------|:--------:|
-| <a name="input_lambdas"></a> [lambdas](#input\_lambdas) | Name and tag for lambdas to download. | <pre>list(object({<br>    name = string<br>    tag  = string<br>  }))</pre> | n/a | yes |
+| <a name="input_lambdas"></a> [lambdas](#input\_lambdas) | Name and tag for lambdas to download. | <pre>list(object({<br/>    name = string<br/>    tag  = string<br/>  }))</pre> | n/a | yes |
 
 ## Outputs
 
 | Name | Description |
 |------|-------------|
 | <a name="output_files"></a> [files](#output\_files) | n/a |
-<!-- END OF PRE-COMMIT-TERRAFORM DOCS HOOK -->
+<!-- END_TF_DOCS -->
